@@ -1,0 +1,12 @@
+.status-card .emoji {
+  width: 16px;
+  vertical-align: middle;
+}
+
+.status-card p p {
+  margin: 0
+}
+
+.status-card p+p {
+  margin-top: 1em;
+}
