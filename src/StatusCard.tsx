@@ -18,10 +18,10 @@ export default function StatusView({ status }: { status: Status }) {
           status.account.display_name.split(/\s+/).map((s) => {
             for (const emoji of status.account.emojis) {
               if (s == ':' + emoji.shortcode + ':') {
-                return <img className="emoji" src={emoji.url} />
+                return <><img className="emoji" src={emoji.url} /> {' '}</>
               }
             }
-            return ' ' + s + ' '
+            return s + ' '
           })
         }
         subheader={status.account.acct}
