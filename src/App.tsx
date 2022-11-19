@@ -68,18 +68,15 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (account && instance) {
-      let stored = JSON.parse(localStorage.getItem("tokens") || "{}")
+    let stored: Record<string, AccessToken> = JSON.parse(localStorage.getItem("tokens") || "{}")
+
+    for (const [instance, token] of Object.entries(stored)) {
       fetch(`https://${instance}/api/v1/timelines/home`, {
-        headers: { "Authorization": `Bearer ${stored[instance].access_token}` }
+        headers: { "Authorization": `Bearer ${token.access_token}` }
       }).then((response) => response.json())
         .then(setTimeline)
-    } else {
-      // fetch('https://mastodon.social/api/v1/timelines/public')
-      //   .then((response) => response.json())
-      //   .then(setTimeline)
     }
-  }, [account, instance])
+  }, [])
 
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const handleLogin = () => {
