@@ -5,9 +5,10 @@ export default interface Status {
   url: string
   media_attachments: MediaAttachment[]
   created_at: string
+  reblog: Status | null
 }
 
-interface Account {
+export interface Account {
   acct: string
   display_name: string
   avatar: string

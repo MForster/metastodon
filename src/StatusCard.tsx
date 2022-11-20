@@ -1,29 +1,42 @@
-import { Avatar, Backdrop, Card, CardContent, CardHeader, CardMedia, Link, Typography } from "@mui/material";
-import DOMPurify from "dompurify";
-import { useState } from "react";
-import Moment from "react-moment";
-import Status from "./Status";
-import "./StatusCard.css";
+import { Avatar, Backdrop, Card, CardContent, CardHeader, CardMedia, Link, Typography } from "@mui/material"
+import DOMPurify from "dompurify"
+import { useState } from "react"
+import Moment from "react-moment"
+import Status, { Account } from "./Status"
+import "./StatusCard.css"
 
-export default function StatusView({ status }: { status: Status }) {
-  const [backdropOpen, setBackdropOpen] = useState(false);
-  const handleBackdropClose = () => setBackdropOpen(false);
-  const handleBackdropToggle = () => setBackdropOpen(!backdropOpen);
+function DisplayName({ account }: { account: Account }): JSX.Element {
+  return <>
+    {account.display_name.split(/\s+/).map((s) => {
+      for (const emoji of account.emojis) {
+        if (s == ':' + emoji.shortcode + ':') {
+          return <><img className="emoji" src={emoji.url} /> {' '}</>
+        }
+      }
+      return s + ' '
+    })}</>
+}
 
-  return <Card className="status-card" sx={{ maxWidth: 600, mx: 'auto', my: 2 }}>
+
+export default function StatusCard({ status }: { status: Status }) {
+  const [backdropOpen, setBackdropOpen] = useState(false)
+  const handleBackdropClose = () => setBackdropOpen(false)
+  const handleBackdropToggle = () => setBackdropOpen(!backdropOpen)
+
+  if (status.reblog) {
+    return <>
+      <Typography variant="body2" sx={{ maxWidth: 600, mx: 'auto', mb: 1 }}>
+        <Link underline="none" href={status.account.url}><DisplayName account={status.account} /></Link> boosted:
+      </Typography>
+      <StatusCard status={status.reblog} />
+    </>
+  }
+
+  return <Card className="status-card" sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
     <Link underline="none" href={status.account.url}>
       <CardHeader
         avatar={<Avatar variant="rounded" src={status.account.avatar} />}
-        title={
-          status.account.display_name.split(/\s+/).map((s) => {
-            for (const emoji of status.account.emojis) {
-              if (s == ':' + emoji.shortcode + ':') {
-                return <><img className="emoji" src={emoji.url} /> {' '}</>
-              }
-            }
-            return s + ' '
-          })
-        }
+        title={<DisplayName account={status.account} />}
         subheader={status.account.acct}
         action={
           <Link underline="none" href={status.url}>
