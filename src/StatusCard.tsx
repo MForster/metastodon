@@ -6,15 +6,28 @@ import Status, { Account } from "./Status"
 import "./StatusCard.css"
 
 function DisplayName({ account }: { account: Account }): JSX.Element {
-  return <>
-    {account.display_name.split(/\s+/).map((s) => {
-      for (const emoji of account.emojis) {
-        if (s == ':' + emoji.shortcode + ':') {
-          return <><img className="emoji" src={emoji.url} /> {' '}</>
-        }
+  let remaining = account.display_name
+  let segments = []
+  while (true) {
+    const match = /^(|.*?\s)(:\w+:)(|\s.*?)$/.exec(remaining)
+    if (match) {
+      segments.push(match[1])
+      segments.push(match[2])
+      remaining = match[3]
+    } else {
+      if (remaining.length)
+        segments.push(remaining)
+      break
+    }
+  }
+  return <>{segments.map((s, i) => {
+    for (const emoji of account.emojis) {
+      if (s == ':' + emoji.shortcode + ':') {
+        return <img key={i} className="emoji" src={emoji.url} />
       }
-      return s + ' '
-    })}</>
+    }
+    return <span key={i}>{s}</span>
+  })}</>
 }
 
 
@@ -33,20 +46,22 @@ export default function StatusCard({ status }: { status: Status }) {
   }
 
   return <Card className="status-card" sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
-    <Link underline="none" href={status.account.url}>
-      <CardHeader
-        avatar={<Avatar variant="rounded" src={status.account.avatar} />}
-        title={<DisplayName account={status.account} />}
-        subheader={status.account.acct}
-        action={
-          <Link underline="none" href={status.url}>
-            <Typography variant="caption" color="text.secondary">
-              <Moment fromNow={true}>{status.created_at}</Moment>
-            </Typography>
-          </Link>
-        }
-      />
-    </Link>
+    <CardHeader
+      avatar={<Link underline="none" href={status.account.url}>
+        <Avatar variant="rounded" src={status.account.avatar} />
+      </Link>}
+      title={<Link underline="none" href={status.account.url}>
+        <DisplayName account={status.account} />
+      </Link>}
+      subheader={status.account.acct}
+      action={
+        <Link underline="none" href={status.url}>
+          <Typography variant="caption" color="text.secondary">
+            <Moment fromNow={true}>{status.created_at}</Moment>
+          </Typography>
+        </Link>
+      }
+    />
 
     {!!status.media_attachments.length &&
       <>
