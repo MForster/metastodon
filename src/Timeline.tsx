@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react'
+import { LinearProgress } from '@mui/material'
 import Instance from './Instance'
-import Status from './Status'
 import StatusCard from './StatusCard'
 
 export default function Timeline({ instance }: { instance: Instance }) {
-  const [statuses, setStatuses] = useState<Status[]>([])
+  const { data, error } = instance.useTimeline('home')
 
-  useEffect(() => {
-    instance?.get('api/v1/timelines/home').then(setStatuses)
-  }, [])
-
-  return <>{
-    statuses.map(status => <StatusCard key={status.uri} status={status} />)
-  }</>
+  return error ? <>{error.toString()}</> :
+    data ? <>{data.map(status => <StatusCard key={status.uri} status={status} />)}</> :
+      <LinearProgress />
 }
