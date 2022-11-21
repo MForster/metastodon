@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Button, Stack, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import Instance from './Instance'
 import LoginButton from './LoginButton'
@@ -15,7 +15,8 @@ export default function App() {
     <LoginButton />
     <Stack direction="row" mx={4} spacing={4}>
       {instances.map(instance => <Box key={instance.getName()}>
-        <Typography mb={2}>{instance.getAccountName()}</Typography>
+        <Typography display="inline" mb={2}>{instance.getAccountName()}</Typography>
+        <Button onClick={() => instance.logout()}>Logout</Button>
         <Timeline instance={instance}></Timeline>
       </Box>)}
     </Stack>

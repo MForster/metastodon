@@ -90,6 +90,14 @@ export default class Instance {
     }
   }
 
+  logout() {
+    this.app_credentials.remove()
+    this.token.remove()
+    this.account.remove()
+
+    dispatchEvent(new Event('accounts-changed'))
+  }
+
   private get_redirect_uri(): string {
     return `${location.origin}${location.pathname}?instance=${this.name}`
   }
