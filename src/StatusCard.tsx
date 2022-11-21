@@ -38,7 +38,7 @@ export default function StatusCard({ status }: { status: Status }) {
 
   if (status.reblog) {
     return <>
-      <Typography variant="body2" sx={{ maxWidth: 600, mx: 'auto', mb: 1 }}>
+      <Typography variant="body2" sx={{ maxWidth: 600, mb: 1 }}>
         <Link underline="none" href={status.account.url}><DisplayName account={status.account} /></Link> boosted:
       </Typography>
       <StatusCard status={status.reblog} />
