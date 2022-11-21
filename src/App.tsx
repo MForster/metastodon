@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { api_get } from './api'
+import Instance from './instance'
 import { AccessToken, AccountData, loginToInstance, maybeFinishLogin } from './login'
 import Status from './Status'
 import PostView from './StatusCard'
@@ -13,8 +13,9 @@ export default function App() {
   useEffect(() => {
     let tokens: Record<string, AccessToken> = JSON.parse(localStorage.getItem("tokens") || "{}")
 
-    for (const instance of Object.keys(tokens)) {
-      api_get(instance, 'api/v1/timelines/home').then(setTimeline)
+    for (const instance_name of Object.keys(tokens)) {
+      let instance = new Instance(instance_name)
+      instance.get('api/v1/timelines/home').then(setTimeline)
     }
   }, [])
 

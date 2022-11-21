@@ -1,4 +1,4 @@
-import { api_get, api_post } from './api'
+import Instance from './instance'
 
 interface AppCredentials {
   client_id: string
@@ -20,50 +20,43 @@ export interface AccountData {
 
 export function maybeFinishLogin() {
   let params = new URLSearchParams(location.search)
-  let instance = params.get('instance') as string
+  let instance_name = params.get('instance') as string
   let code = params.get('code') as string
 
-  if (instance && code) {
+  if (instance_name && code) {
+    let instance = new Instance(instance_name)
     window.history.pushState({}, '', '/')
 
-    let creds = JSON.parse(localStorage.getItem('app_credentials') || "{}")?.[instance] as AppCredentials
-    let redirect_uri = `${location.origin}${location.pathname}?instance=${instance}`
+    let creds = instance.load("app_credentials") as AppCredentials
 
-    api_post(instance, 'oauth/token', {
+    instance.post('oauth/token', {
       grant_type: 'authorization_code',
       client_id: creds.client_id,
       client_secret: creds.client_secret,
-      redirect_uri,
+      redirect_uri: instance.get_redirect_uri(),
       code
     })
       .then((creds: AccessToken) => {
-        let stored = JSON.parse(localStorage.getItem("tokens") || "{}")
-        stored[instance] = creds
-        localStorage.setItem("tokens", JSON.stringify(stored))
-
-        return api_get(instance, 'api/v1/accounts/verify_credentials')
+        instance.save("tokens", creds)
+        return instance.get('api/v1/accounts/verify_credentials')
       })
-
       .then((account: AccountData) => {
-        let stored = JSON.parse(localStorage.getItem("accounts") || "{}")
-        stored[instance] = account
-        localStorage.setItem("accounts", JSON.stringify(stored))
+        instance.save("accounts", account)
       })
   }
 }
 
-export function loginToInstance(instance: string) {
-  let redirect_uri = `${location.origin}${location.pathname}?instance=${instance}`
+export function loginToInstance(instance_name: string) {
+  let instance = new Instance(instance_name)
 
-  api_post(instance, 'api/v1/apps', {
+  let redirect_uri = instance.get_redirect_uri()
+
+  instance.post('api/v1/apps', {
     client_name: 'metastodon',
     redirect_uris: redirect_uri,
   })
     .then((creds: AppCredentials) => {
-      let stored = JSON.parse(localStorage.getItem("app_credentials") || "{}")
-      stored[instance] = creds
-      localStorage.setItem("app_credentials", JSON.stringify(stored))
-
-      location.href = `https://${instance}/oauth/authorize?response_type=code&client_id=${creds.client_id}&redirect_uri=${redirect_uri}`
+      instance.save("app_credentials", creds)
+      location.href = `https://${instance.name}/oauth/authorize?response_type=code&client_id=${creds.client_id}&redirect_uri=${redirect_uri}`
     })
 }
