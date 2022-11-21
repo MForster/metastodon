@@ -1,7 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import Instance from './instance'
-import { AccountData, loginToInstance, maybeFinishLogin } from './login'
 import Status from './Status'
 import PostView from './StatusCard'
 
@@ -9,7 +8,7 @@ export default function App() {
   const [timeline, setTimeline] = useState<Status[]>([])
   const instances = Instance.instances()
 
-  useEffect(maybeFinishLogin, [])
+  useEffect(Instance.maybeFinishLogin, [])
 
   useEffect(() => {
     for (const instance of instances) {
@@ -17,13 +16,11 @@ export default function App() {
     }
   }, [])
 
-  let accounts: Record<string, AccountData> = JSON.parse(localStorage.getItem("accounts") || "{}")
-
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const handleLogin = () => {
     setLoginDialogOpen(false)
-    const instance = (document.getElementById('instance') as HTMLInputElement).value
-    loginToInstance(instance)
+    const instance = new Instance((document.getElementById('instance') as HTMLInputElement).value)
+    instance.login()
   }
 
   return <>
