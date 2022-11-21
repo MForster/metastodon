@@ -6,4 +6,7 @@ export default defineConfig({
   resolve: {
     mainFields: [],
   },
+  define: {
+    global: 'window',
+  },
 })

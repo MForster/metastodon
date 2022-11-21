@@ -1,5 +1,6 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
-import { useEffect, useState } from 'react'
+import useEventListener from '@use-it/event-listener'
+import { useState } from 'react'
 import Instance from './Instance'
 import LoginButton from './LoginButton'
 import Timeline from './Timeline'
@@ -7,9 +8,7 @@ import Timeline from './Timeline'
 export default function App() {
   let [instances, setInstances] = useState(Instance.instances())
 
-  useEffect(() => {
-    addEventListener('accounts-changed', () => { setInstances(Instance.instances()) })
-  })
+  useEventListener('accounts-changed', () => setInstances(Instance.instances()))
 
   return <>
     <LoginButton />
