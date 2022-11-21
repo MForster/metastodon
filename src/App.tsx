@@ -7,8 +7,8 @@ export default function App() {
   return <>
     <LoginButton />
     <Stack direction="row" mx={4} spacing={4}>
-      {Instance.instances().map(instance => <Box>
-        <Typography mb={2}>{instance.get_account_name()}</Typography>
+      {Instance.instances().map(instance => <Box key={instance.getName()}>
+        <Typography mb={2}>{instance.getAccountName()}</Typography>
         <Timeline instance={instance}></Timeline>
       </Box>)}
     </Stack>

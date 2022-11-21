@@ -11,7 +11,9 @@ export default class Instance {
     this.account = new StoredProperty(name, "accounts")
   }
 
-  get_account_name(): string {
+  getName(): string { return this.name }
+
+  getAccountName(): string {
     const account = this.account.get()
     if (!account) {
       console.log("No account found for instance ", this.name)
@@ -38,7 +40,7 @@ export default class Instance {
   }
 
   static instances(): Instance[] {
-    let tokens = JSON.parse(localStorage.getItem("tokens") || "{}")
+    let tokens = JSON.parse(localStorage.getItem("accounts") || "{}")
     return Object.keys(tokens).map(name => new Instance(name))
   }
 
