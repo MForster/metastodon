@@ -5,27 +5,25 @@ import Status from './Status'
 import PostView from './StatusCard'
 
 export default function App() {
+  const instance = Instance.instances()[0] // TODO: multiple instances
+
   const [timeline, setTimeline] = useState<Status[]>([])
-  const instances = Instance.instances()
-
-  useEffect(Instance.maybeFinishLogin, [])
-
   useEffect(() => {
-    for (const instance of instances) {
-      instance.get('api/v1/timelines/home').then(setTimeline)
-    }
+    instance?.get('api/v1/timelines/home').then(setTimeline)
   }, [])
 
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const handleLogin = () => {
     setLoginDialogOpen(false)
-    const instance = new Instance((document.getElementById('instance') as HTMLInputElement).value)
-    instance.login()
+    const instance_name = (document.getElementById('instance') as HTMLInputElement).value
+    new Instance(instance_name).beginLogin()
   }
+  useEffect(Instance.maybeFinishLogin, [])
 
   return <>
-    {instances.map(instance =>
-      <Typography key="instance" sx={{ display: 'inline' }}>{instance.get_account_name()}</Typography>)}
+    <Typography sx={{ display: 'inline' }}>
+      {instance?.get_account_name()}
+    </Typography>
     <Button onClick={() => setLoginDialogOpen(true)}>Login</Button>
     <Dialog open={loginDialogOpen} onClose={() => setLoginDialogOpen(false)}>
       <DialogTitle>Login</DialogTitle>

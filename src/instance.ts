@@ -42,7 +42,7 @@ export default class Instance {
     return Object.keys(tokens).map(name => new Instance(name))
   }
 
-  login() {
+  beginLogin() {
     let redirect_uri = this.get_redirect_uri()
 
     this.post('api/v1/apps', {
