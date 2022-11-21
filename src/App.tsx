@@ -1,20 +1,18 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import Instance from './instance'
-import { AccessToken, AccountData, loginToInstance, maybeFinishLogin } from './login'
+import { AccountData, loginToInstance, maybeFinishLogin } from './login'
 import Status from './Status'
 import PostView from './StatusCard'
 
 export default function App() {
   const [timeline, setTimeline] = useState<Status[]>([])
+  const instances = Instance.instances()
 
   useEffect(maybeFinishLogin, [])
 
   useEffect(() => {
-    let tokens: Record<string, AccessToken> = JSON.parse(localStorage.getItem("tokens") || "{}")
-
-    for (const instance_name of Object.keys(tokens)) {
-      let instance = new Instance(instance_name)
+    for (const instance of instances) {
       instance.get('api/v1/timelines/home').then(setTimeline)
     }
   }, [])
@@ -29,8 +27,8 @@ export default function App() {
   }
 
   return <>
-    {Object.entries(accounts).map(([instance, account]) =>
-      <Typography key="instance" sx={{ display: 'inline' }}>{account.username}@{instance}</Typography>)}
+    {instances.map(instance =>
+      <Typography key="instance" sx={{ display: 'inline' }}>{instance.get_account_name()}</Typography>)}
     <Button onClick={() => setLoginDialogOpen(true)}>Login</Button>
     <Dialog open={loginDialogOpen} onClose={() => setLoginDialogOpen(false)}>
       <DialogTitle>Login</DialogTitle>

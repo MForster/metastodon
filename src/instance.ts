@@ -1,3 +1,4 @@
+
 export default class Instance {
   constructor(
     public name: string,
@@ -17,6 +18,10 @@ export default class Instance {
     return `${location.origin}${location.pathname}?instance=${this.name}`
   }
 
+  get_account_name(): string {
+    return `${this.load("accounts").username}@${this.name}`
+  }
+
   async get(endpoint: string): Promise<any> {
     let creds = this.load("tokens")
 
@@ -31,5 +36,10 @@ export default class Instance {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     }).then(res => res.json())
+  }
+
+  static instances(): Instance[] {
+    let tokens = JSON.parse(localStorage.getItem("tokens") || "{}")
+    return Object.keys(tokens).map(name => new Instance(name))
   }
 }
