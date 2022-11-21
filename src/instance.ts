@@ -1,12 +1,28 @@
+import StoredProperty from './stored_property'
+
 export default class Instance {
-  constructor(private name: string) { }
+  private app_credentials: StoredProperty<AppCredentials>
+  private token: StoredProperty<AccessToken>
+  private account: StoredProperty<AccountData>
+
+  constructor(private name: string) {
+    this.app_credentials = new StoredProperty(name, "app_credentials")
+    this.token = new StoredProperty(name, "tokens")
+    this.account = new StoredProperty(name, "accounts")
+  }
 
   get_account_name(): string {
-    return `${this.load("accounts").username}@${this.name}`
+    const account = this.account.get()
+    if (!account) {
+      console.log("No account found for instance ", this.name)
+      return `<unknown>@${this.name}`
+    }
+
+    return `${account.username}@${this.name}`
   }
 
   async get(endpoint: string): Promise<any> {
-    let creds = this.load("tokens")
+    let creds = this.token.get()
 
     return fetch(`https://${this.name}/${endpoint}`, {
       headers: creds && { "Authorization": `Bearer ${creds.access_token}` }
@@ -34,7 +50,7 @@ export default class Instance {
       redirect_uris: redirect_uri,
     })
       .then((creds: AppCredentials) => {
-        this.save("app_credentials", creds)
+        this.app_credentials.set(creds)
         location.href = `https://${this.name}/oauth/authorize?response_type=code&client_id=${creds.client_id}&redirect_uri=${redirect_uri}`
       })
   }
@@ -48,7 +64,11 @@ export default class Instance {
       let instance = new Instance(instance_name)
       window.history.pushState({}, '', '/')
 
-      let creds = instance.load("app_credentials") as AppCredentials
+      let creds = instance.app_credentials.get()
+      if (!creds) {
+        console.log("No app credentials found for instance", instance_name)
+        return
+      }
 
       instance.post('oauth/token', {
         grant_type: 'authorization_code',
@@ -58,23 +78,13 @@ export default class Instance {
         code
       })
         .then((creds: AccessToken) => {
-          instance.save("tokens", creds)
+          instance.token.set(creds)
           return instance.get('api/v1/accounts/verify_credentials')
         })
         .then((account: AccountData) => {
-          instance.save("accounts", account)
+          instance.account.set(account)
         })
     }
-  }
-
-  private load(property: string): any {
-    return JSON.parse(localStorage.getItem(property) || "{}")[this.name]
-  }
-
-  private save(property: string, value: any) {
-    let stored = JSON.parse(localStorage.getItem(property) || "{}")
-    stored[this.name] = value
-    localStorage.setItem(property, JSON.stringify(stored))
   }
 
   private get_redirect_uri(): string {
