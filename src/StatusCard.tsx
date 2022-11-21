@@ -31,7 +31,7 @@ function DisplayName({ account }: { account: Account }): JSX.Element {
 }
 
 
-export default function StatusCard({ status }: { status: Status }) {
+export default function StatusCard({ status, selected }: { status: Status, selected: boolean }) {
   const [backdropOpen, setBackdropOpen] = useState(false)
   const handleBackdropClose = () => setBackdropOpen(false)
   const handleBackdropToggle = () => setBackdropOpen(!backdropOpen)
@@ -41,11 +41,11 @@ export default function StatusCard({ status }: { status: Status }) {
       <Typography variant="body2" sx={{ maxWidth: 600, mb: 1 }}>
         <Link underline="none" href={status.account.url}><DisplayName account={status.account} /></Link> boosted:
       </Typography>
-      <StatusCard status={status.reblog} />
+      <StatusCard status={status.reblog} selected={selected} />
     </>
   }
 
-  return <Card className="status-card" sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
+  return <Card raised={selected} className="status-card" sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
     <CardHeader
       avatar={<Link underline="none" href={status.account.url}>
         <Avatar variant="rounded" src={status.account.avatar} />
