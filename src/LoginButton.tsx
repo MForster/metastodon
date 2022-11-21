@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
-import Instance from './instance'
+import Instance from './Instance'
 
 export default function LoginButton() {
   useEffect(Instance.maybeFinishLogin, [])

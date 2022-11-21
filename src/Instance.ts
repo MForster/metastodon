@@ -1,4 +1,4 @@
-import StoredProperty from './stored_property'
+import StoredProperty from './StoredProperty'
 
 export default class Instance {
   private app_credentials: StoredProperty<AppCredentials>

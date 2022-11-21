@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
-import Instance from './instance'
+import Instance from './Instance'
 import LoginButton from './LoginButton'
 import Status from './Status'
 import StatusCard from './StatusCard'
