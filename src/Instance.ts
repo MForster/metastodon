@@ -85,6 +85,7 @@ export default class Instance {
         })
         .then((account: AccountData) => {
           instance.account.set(account)
+          dispatchEvent(new Event('accounts-changed'))
         })
     }
   }
