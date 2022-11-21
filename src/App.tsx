@@ -1,5 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
+import { api_get } from './api'
 import { AccessToken, AccountData, loginToInstance, maybeFinishLogin } from './login'
 import Status from './Status'
 import PostView from './StatusCard'
@@ -10,13 +11,10 @@ export default function App() {
   useEffect(maybeFinishLogin, [])
 
   useEffect(() => {
-    let stored: Record<string, AccessToken> = JSON.parse(localStorage.getItem("tokens") || "{}")
+    let tokens: Record<string, AccessToken> = JSON.parse(localStorage.getItem("tokens") || "{}")
 
-    for (const [instance, token] of Object.entries(stored)) {
-      fetch(`https://${instance}/api/v1/timelines/home`, {
-        headers: { "Authorization": `Bearer ${token.access_token}` }
-      }).then((response) => response.json())
-        .then(setTimeline)
+    for (const instance of Object.keys(tokens)) {
+      api_get(instance, 'api/v1/timelines/home').then(setTimeline)
     }
   }, [])
 
