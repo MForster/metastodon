@@ -1,5 +1,3 @@
-import useSWR, { SWRResponse } from 'swr'
-import Status from './Status'
 import StoredProperty from './StoredProperty'
 
 export default class Instance {
@@ -44,11 +42,6 @@ export default class Instance {
   static instances(): Instance[] {
     let tokens = JSON.parse(localStorage.getItem("accounts") || "{}")
     return Object.keys(tokens).map(name => new Instance(name))
-  }
-
-  useTimeline(timeline: string): SWRResponse<Status[], any> {
-    return useSWR(`${this.name}:timeline:${timeline}`,
-      () => this.get(`api/v1/timelines/${timeline}`))
   }
 
   beginLogin() {
