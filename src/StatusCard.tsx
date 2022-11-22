@@ -6,7 +6,7 @@ import Status, { Account } from "./Status"
 import "./StatusCard.css"
 
 function DisplayName({ account }: { account: Account }): JSX.Element {
-  let remaining = account.display_name
+  let remaining = account.display_name || account.acct
   let segments = []
   while (true) {
     const match = /^(|.*?\s)(:\w+:)(|\s.*?)$/.exec(remaining)
