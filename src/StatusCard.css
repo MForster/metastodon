@@ -10,3 +10,8 @@
 .status-card p+p {
   margin-top: 1em;
 }
+
+.media {
+  max-width: 95%;
+  max-height: 95%;
+}

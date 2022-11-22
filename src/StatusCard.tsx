@@ -73,7 +73,7 @@ export default function StatusCard({ status, selected }: { status: Status, selec
           onClick={handleBackdropToggle}
         />
         <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={backdropOpen} onClick={handleBackdropClose}>
-          <img src={status.media_attachments[0].url} />
+          <img className="media" src={status.media_attachments[0].url} />
         </Backdrop>
       </>
     }
