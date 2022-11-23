@@ -30,12 +30,21 @@ export default function App() {
     }
   }, [db, instances])
 
+  const handleRefresh = (instance: Instance) => {
+    instance.get('api/v1/timelines/home').then((statuses: Status[]) => {
+      for (const status of statuses) {
+        db!.put('statuses', status)
+      }
+    })
+  }
+
   return db ? <>
     <Database.Provider value={db}>
       <Stack direction="row" mx={4} spacing={4}>
         <LoginButton />
         {instances.map(instance => <Box key={instance.getName()}>
           <Typography display="inline" mb={2}>{instance.getAccountName()}</Typography>
+          <Button onClick={() => handleRefresh(instance)}>Refresh</Button>
           <Button onClick={() => instance.logout()}>Logout</Button>
         </Box>)}
       </Stack>
