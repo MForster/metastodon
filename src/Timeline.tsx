@@ -10,7 +10,16 @@ export default function Timeline() {
 
   const [timeline, setTimeline] = useState<Status[]>([])
   useEffect(() => {
-    db.getAll('statuses').then(setTimeline)
+    const getStatuses = async () => {
+      const index = db.transaction('statuses').store.index('created_at')
+      let statuses = []
+      for await (const cursor of index.iterate(null, 'prev')) {
+        statuses.push(cursor.value)
+      }
+      return statuses
+    }
+
+    getStatuses().then(setTimeline)
   }, [])
 
   const [selection, setSelection] = useState(-1)
