@@ -1,26 +1,15 @@
 import { LinearProgress } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
-import { Database } from './Database'
+import { DBContext } from './Database'
 import { useKeyHandler } from './Hooks'
 import Status from './Status'
 import StatusCard from './StatusCard'
 
 export default function Timeline() {
-  const db = useContext(Database)
+  const db = useContext(DBContext)
 
   const [timeline, setTimeline] = useState<Status[]>([])
-  useEffect(() => {
-    const getStatuses = async () => {
-      const index = db.transaction('statuses').store.index('created_at')
-      let statuses = []
-      for await (const cursor of index.iterate(null, 'prev')) {
-        statuses.push(cursor.value)
-      }
-      return statuses
-    }
-
-    getStatuses().then(setTimeline)
-  }, [])
+  useEffect(() => { db.getStatuses().then(setTimeline) }, [])
 
   const [selection, setSelection] = useState(-1)
   useKeyHandler("ArrowDown", () => { setSelection(pos => Math.min(pos + 1, timeline.length - 1)) })
