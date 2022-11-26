@@ -1,37 +1,18 @@
+import Account from './Account'
 import StoredProperty from './StoredProperty'
 
 export default class Instance {
   private app_credentials: StoredProperty<AppCredentials>
-  private token: StoredProperty<AccessToken>
-  private account: StoredProperty<AccountData>
 
   constructor(private name: string) {
     this.app_credentials = new StoredProperty(name, "app_credentials")
-    this.token = new StoredProperty(name, "tokens")
-    this.account = new StoredProperty(name, "accounts")
   }
 
-  getName(): string { return this.name }
-
-  getAccountName(): string {
-    const account = this.account.get()
-    if (!account) {
-      console.log("No account found for instance ", this.name)
-      return `<unknown>@${this.name}`
-    }
-
-    return `${account.username}@${this.name}`
+  getName(): string {
+    return this.name
   }
 
-  async get(endpoint: string): Promise<any> {
-    let creds = this.token.get()
-    let res = await fetch(`https://${this.name}/${endpoint}`, {
-      headers: creds && { "Authorization": `Bearer ${creds.access_token}` }
-    })
-    return res.json()
-  }
-
-  async post(endpoint: string, body: any): Promise<any> {
+  private async post(endpoint: string, body: any): Promise<any> {
     let res = await fetch(`https://${this.name}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,11 +20,6 @@ export default class Instance {
     })
 
     return res.json()
-  }
-
-  static instances(): Instance[] {
-    let tokens = JSON.parse(localStorage.getItem("accounts") || "{}")
-    return Object.keys(tokens).map(name => new Instance(name))
   }
 
   async beginLogin() {
@@ -72,26 +48,19 @@ export default class Instance {
         console.log("No app credentials found for instance", instance_name)
         return
       }
-      instance.token.set(await instance.post('oauth/token', {
+      const token = await instance.post('oauth/token', {
         grant_type: 'authorization_code',
         client_id: creds.client_id,
         client_secret: creds.client_secret,
         redirect_uri: instance.get_redirect_uri(),
         code
-      }))
-      instance.account.set(await instance.get('api/v1/accounts/verify_credentials'))
+      })
 
-      dispatchEvent(new Event('accounts-changed'))
+      Account.login(instance, token)
     }
   }
 
-  logout() {
-    this.app_credentials.remove()
-    this.token.remove()
-    this.account.remove()
 
-    dispatchEvent(new Event('accounts-changed'))
-  }
 
   private get_redirect_uri(): string {
     return `${location.origin}${location.pathname}?instance=${this.name}`
@@ -101,17 +70,4 @@ export default class Instance {
 interface AppCredentials {
   client_id: string
   client_secret: string
-}
-
-interface AccessToken {
-  access_token: string,
-  token_type: string,
-  scope: string,
-  created_at: number,
-}
-
-interface AccountData {
-  username: string,
-  display_name: string,
-  avatar: string,
 }
