@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Instance from './Instance'
 
 export default function LoginButton() {
-  useEffect(Instance.maybeFinishLogin, [])
+  useEffect(() => { Instance.maybeFinishLogin() }, [])
 
   const loginButton = useRef<HTMLInputElement>(null)
 

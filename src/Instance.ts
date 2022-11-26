@@ -25,18 +25,20 @@ export default class Instance {
 
   async get(endpoint: string): Promise<any> {
     let creds = this.token.get()
-
-    return fetch(`https://${this.name}/${endpoint}`, {
+    let res = await fetch(`https://${this.name}/${endpoint}`, {
       headers: creds && { "Authorization": `Bearer ${creds.access_token}` }
-    }).then(res => res.json())
+    })
+    return res.json()
   }
 
   async post(endpoint: string, body: any): Promise<any> {
-    return fetch(`https://${this.name}/${endpoint}`, {
+    let res = await fetch(`https://${this.name}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
-    }).then(res => res.json())
+    })
+
+    return res.json()
   }
 
   static instances(): Instance[] {
@@ -44,20 +46,19 @@ export default class Instance {
     return Object.keys(tokens).map(name => new Instance(name))
   }
 
-  beginLogin() {
+  async beginLogin() {
     let redirect_uri = this.get_redirect_uri()
 
-    this.post('api/v1/apps', {
+    let creds = await this.post('api/v1/apps', {
       client_name: 'metastodon',
       redirect_uris: redirect_uri,
-    })
-      .then((creds: AppCredentials) => {
-        this.app_credentials.set(creds)
-        location.href = `https://${this.name}/oauth/authorize?response_type=code&client_id=${creds.client_id}&redirect_uri=${redirect_uri}`
-      })
+    }) as AppCredentials
+
+    this.app_credentials.set(creds)
+    location.href = `https://${this.name}/oauth/authorize?response_type=code&client_id=${creds.client_id}&redirect_uri=${redirect_uri}`
   }
 
-  static maybeFinishLogin() {
+  static async maybeFinishLogin() {
     let params = new URLSearchParams(location.search)
     let instance_name = params.get('instance') as string
     let code = params.get('code') as string
@@ -71,22 +72,16 @@ export default class Instance {
         console.log("No app credentials found for instance", instance_name)
         return
       }
-
-      instance.post('oauth/token', {
+      instance.token.set(await instance.post('oauth/token', {
         grant_type: 'authorization_code',
         client_id: creds.client_id,
         client_secret: creds.client_secret,
         redirect_uri: instance.get_redirect_uri(),
         code
-      })
-        .then((creds: AccessToken) => {
-          instance.token.set(creds)
-          return instance.get('api/v1/accounts/verify_credentials')
-        })
-        .then((account: AccountData) => {
-          instance.account.set(account)
-          dispatchEvent(new Event('accounts-changed'))
-        })
+      }))
+      instance.account.set(await instance.get('api/v1/accounts/verify_credentials'))
+
+      dispatchEvent(new Event('accounts-changed'))
     }
   }
 
