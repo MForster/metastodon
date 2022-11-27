@@ -1,4 +1,4 @@
-import { Avatar, Backdrop, Card, CardContent, CardHeader, CardMedia, Link, Typography } from "@mui/material"
+import { Avatar, Backdrop, Box, Card, CardContent, CardHeader, CardMedia, Link, Typography } from "@mui/material"
 import DOMPurify from "dompurify"
 import { useState } from "react"
 import Moment from "react-moment"
@@ -30,56 +30,57 @@ function DisplayName({ account }: { account: Account }): JSX.Element {
   })}</>
 }
 
-
 export default function StatusCard({ status, selected }: { status: Status, selected: boolean }) {
   const [backdropOpen, setBackdropOpen] = useState(false)
   const handleBackdropClose = () => setBackdropOpen(false)
   const handleBackdropToggle = () => setBackdropOpen(!backdropOpen)
 
-  if (status.reblog) {
-    return <>
-      <Typography variant="body2" sx={{ maxWidth: 600, mx: 'auto', mb: 1 }}>
-        <Link underline="none" href={status.account.url}><DisplayName account={status.account} /></Link> boosted:
-      </Typography>
-      <StatusCard status={status.reblog} selected={selected} />
-    </>
-  }
+  const prefix = <>
+    {status.reblog && <Typography variant="body2" sx={{ maxWidth: 600, mx: 'auto', mb: 1 }}>
+      <Link underline="none" href={status.account.url}><DisplayName account={status.account} /></Link> boosted:
+    </Typography>}
+  </>
 
-  return <Card raised={selected} className="status-card" sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
-    <CardHeader
-      avatar={<Link underline="none" href={status.account.url}>
-        <Avatar variant="rounded" src={status.account.avatar} />
-      </Link>}
-      title={<Link underline="none" href={status.account.url}>
-        <DisplayName account={status.account} />
-      </Link>}
-      subheader={status.account.acct}
-      action={
-        <Link underline="none" href={status.url}>
-          <Typography variant="caption" color="text.secondary">
-            <Moment fromNow={true}>{status.created_at}</Moment>
-          </Typography>
-        </Link>
+  status = status.reblog || status
+
+  return <Box sx={{ my: 4 }}>
+    {prefix}
+    <Card raised={selected} className="status-card" sx={{ maxWidth: 600, mx: 'auto' }}>
+      <CardHeader
+        avatar={<Link underline="none" href={status.account.url}>
+          <Avatar variant="rounded" src={status.account.avatar} />
+        </Link>}
+        title={<Link underline="none" href={status.account.url}>
+          <DisplayName account={status.account} />
+        </Link>}
+        subheader={status.account.acct}
+        action={
+          <Link underline="none" href={status.url}>
+            <Typography variant="caption" color="text.secondary">
+              <Moment fromNow={true}>{status.created_at}</Moment>
+            </Typography>
+          </Link>
+        }
+      />
+
+      {!!status.media_attachments.length &&
+        <>
+          <CardMedia
+            component="img"
+            height="200"
+            image={status.media_attachments[0].preview_url}
+            alt={status.media_attachments[0].description}
+            onClick={handleBackdropToggle}
+          />
+          <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={backdropOpen} onClick={handleBackdropClose}>
+            <img className="media" src={status.media_attachments[0].url} />
+          </Backdrop>
+        </>
       }
-    />
 
-    {!!status.media_attachments.length &&
-      <>
-        <CardMedia
-          component="img"
-          height="200"
-          image={status.media_attachments[0].preview_url}
-          alt={status.media_attachments[0].description}
-          onClick={handleBackdropToggle}
-        />
-        <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={backdropOpen} onClick={handleBackdropClose}>
-          <img className="media" src={status.media_attachments[0].url} />
-        </Backdrop>
-      </>
-    }
-
-    <CardContent>
-      <Typography dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(status.content) }} />
-    </CardContent>
-  </Card >
+      <CardContent>
+        <Typography dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(status.content) }} />
+      </CardContent>
+    </Card >
+  </Box>
 }

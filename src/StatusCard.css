@@ -11,6 +11,11 @@
   margin-top: 1em;
 }
 
+.status-card a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
 .media {
   max-width: 95%;
   max-height: 95%;

@@ -15,7 +15,7 @@ export default function LoginButton() {
   }
 
   return <>
-    <Button onClick={() => setOpen(true)}>Login</Button>
+    <Button color="inherit" onClick={() => setOpen(true)}>Login</Button>
 
     <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>Login</DialogTitle>
@@ -23,7 +23,7 @@ export default function LoginButton() {
         <DialogContentText>
           Please enter the name of the instance you want to log into, for example "mastodon.social".
         </DialogContentText>
-        <TextField inputRef={loginButton} autoFocus id="instance" label="Instance" type="url" fullWidth variant="standard" />
+        <TextField inputRef={loginButton} autoFocus id="instance" label="Instance" type="url" fullWidth variant="standard" sx={{ mt: 2 }} />
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setOpen(false)}>Cancel</Button>

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.10.15",
     "@mui/material": "^5.10.14",
     "@use-it/event-listener": "^0.1.7",
     "dompurify": "^2.4.1",

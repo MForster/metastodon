@@ -2,8 +2,8 @@ import { Box, Button, Stack, Typography } from '@mui/material'
 import useEventListener from '@use-it/event-listener'
 import { useContext, useEffect, useState } from 'react'
 import Account from './Account'
+import MetastodonAppBar from './AppBar'
 import { DBContext } from './Database'
-import LoginButton from './LoginButton'
 import Timeline from './Timeline'
 
 export default function App() {
@@ -18,8 +18,8 @@ export default function App() {
   }
 
   return <>
+    <MetastodonAppBar />
     <Stack direction="row" mx={4} spacing={4}>
-      <LoginButton />
       {accounts.map(account => <Box key={account.getName()}>
         <Typography display="inline" mb={2}>{account.getName()}</Typography>
         <Button onClick={() => handleRefresh(account)}>Refresh</Button>
